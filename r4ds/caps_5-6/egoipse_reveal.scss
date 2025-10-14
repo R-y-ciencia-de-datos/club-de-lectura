@@ -1,0 +1,139 @@
+/**
+ * Theme personalizado para reveal.js.
+ * 
+ * Adaptado del theme "night" de quarto: https://github.com/quarto-dev/quarto-cli/blob/main/src/resources/formats/revealjs/themes/night.scss 
+ */
+
+/*-- scss:defaults --*/
+
+// Fuentes de google
+@import url(https://fonts.googleapis.com/css?family=Montserrat:700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic,700italic);
+@import url(https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap);
+
+
+$body-bg: #fff !default;
+$body-color: #000 !default;
+$link-color: #1565C0 !default;
+$selection-bg: #537091 !default;
+
+/* $font-family-sans-serif: "Open Sans", sans-serif !default; */
+$font-family-sans-serif: "Roboto", sans-serif !default;
+$presentation-heading-font: "Montserrat", sans-serif !default;
+$presentation-heading-text-shadow: none !default;
+$presentation-heading-letter-spacing: -0.03em !default;
+$presentation-heading-text-transform: none !default;
+
+// input panel
+$input-panel-bg: rgba(233, 236, 239, 0.2) !default;
+
+// code blocks
+$code-block-bg: transparent !default;
+
+/*-- scss:rules --*/
+
+.reveal .title {
+  font-size: 60px;  
+}
+
+.reveal .subtitle {
+  font-size: 60px;
+  font-weight: 500;
+}
+
+.reveal .title, .reveal .subtitle, .reveal h1, .reveal h2  {
+  color: $link-color;
+}
+
+.reveal .quarto-title-authors {
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.reveal .level1 h1 {
+  font-size: 35px;
+}
+
+.reveal h2 {
+  font-size: 60px;
+}
+
+.reveal .border {
+  border: 1px solid #dee2e6;
+}
+
+.reveal .border-thick {
+  border-width: 3px;
+}
+
+.reveal .tabla {
+  font-size: 0.7em;
+}
+
+.reveal .tablita {
+  font-size: 0.6em;
+}
+
+.reveal .tablitita {
+  font-size: 0.5em;
+}
+
+.reveal .cabecita {
+  text-align: center;
+  font-weight: 700;
+}
+
+.reveal .normal {
+  font-size: .75em;  
+}
+
+.reveal .normal p, .reveal .normal li  {
+  margin: 1.2em;
+}
+
+.reveal .texto-pequegno {
+  font-size: .75em;  
+}
+
+.reveal .texto-muy-pequegno, .reveal .texto-muy-pequegno p {
+  font-size: .6em;
+} 
+
+.reveal .leyenda {
+  font-size: 8px;
+  height: 50%;
+  background: ffffff;
+}
+
+.reveal .derecha {
+  float: right;
+}
+
+.reveal .centrar {
+  margin: 0 auto;
+  text-align: center;  
+}
+
+/*
+.reveal .centrar_v {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+  vertical-align: middle;
+ }
+ */
+ 
+ .reveal .enlace_negro, .reveal .enlace_negro p, .reveal .enlace_negro a {
+   color: #000000;
+ }
+ 
+ .reveal .enlace_amarillo, .reveal .enlace_amarillo p, .reveal .enlace_amarillo a {
+   color: #FFD13B;
+ }
+
+ .reveal .enlace_amarillo:hover, .reveal .enlace_amarillo p:hover, .reveal .enlace_amarillo a:hover {
+   color: #000000;
+ }
+ 
+ 
