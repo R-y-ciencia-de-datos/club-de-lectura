@@ -1,8 +1,8 @@
 # R for data science
 
-!\[](https://r4ds.hadley.nz/cover.jpg)
+![](https://r4ds.hadley.nz/cover.jpg)
 
-## 1\. Presentación
+## 1. Presentación
 
 Probablemente el libro más leído y difundido de todos los que se han escrito sobre R, es una introducción general y pedagógica al trabajo con datos usando el sistema de paquetes de [tidyverse](https://tidyverse.tidyverse.org/articles/manifesto.html).
 
@@ -12,7 +12,7 @@ El año 2023 se publicó la segunda edición en inglés, que introdujo cambios e
 
 En esta segunda temporada del club de lectura de ***R y ciencia de datos*** estamos estudiando precisamente esta segunda edición. Cada semana leemos y analizamos dos capítulos del libro.
 
-## 2\. Videos
+## 2. Videos
 
 Los videos de las sesiones realizadas hasta ahora se pueden consultar en los siguientes enlaces:
 
