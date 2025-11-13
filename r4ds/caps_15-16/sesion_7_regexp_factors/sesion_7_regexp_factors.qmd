@@ -1,0 +1,589 @@
+---
+title: "Regexp & Factores"
+author: "Adonis C. Gallardo"
+format: 
+  revealjs: 
+    chalkboard: true
+    scrolling: true
+    incremental: true
+    transition: slide
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Coincidencia de Patrones en Cadenas
+Capítulo 15 del Libro R4DS
+
+# REGEXP: EXPRESIONES REGULARES
+
+## ¿Qué son las Expresiones Regulares? {.scrollable}
+- Lenguaje conciso para describir patrones en cadenas
+- Abreviado como "regex" o "regexp"
+- Se usa con funciones de cadenas para coincidencia poderosa de patrones
+
+**Prerrequisitos:**
+```{r}
+library(tidyverse)
+library(babynames)
+```
+
+
+## Conceptos Básicos con str_view() {.scrollable}
+
+```{r primer chunk}
+str_view(fruit, "berry")  # Coincidencia literal
+str_view(fruit, "a...e")  # . coincide con cualquier carácter
+
+# Cuantificadores:
+# ? = 0 o 1 vez
+# + = 1 o más veces  
+# * = 0 o más veces
+
+str_view(c("a", "ab", "abb"), "ab?")
+str_view(c("a", "ab", "abb"), "ab+")
+```
+
+## Conjuntos de Caracteres y Alternativas {.scrollable}
+
+- Clases de caracteres: [aeiou] coincide con cualquier 
+
+```{r segundo chunk}
+str_view(words, "[aeiou]x[aeiou]")
+```
+
+- Negación: [^aeiou] coincide con no vocales
+
+```{r}
+str_view(words, "[^aeiou]")
+```
+
+```{r}
+str_view(words, "[^aeiou]y[^aeiou]")
+```
+
+- Alternancia: | para patrones O (Conjuncion)
+
+```{r}
+str_view(fruit, "apple|melon|nut")
+```
+
+## Detectar Coincidencias con str_detect() {.scrollable}
+
+- Retorna vector lógico
+
+```{r}
+str_detect(c("a", "b", "c"), "[aeiou]")
+```
+
+- Usar con filter() y summarize()
+
+```{r}
+babynames |> 
+  filter(str_detect(name, "x")) |>
+  count(name, wt = n, sort = TRUE)
+```
+
+- Calcular proporciones
+
+```{r}
+babynames |>
+  group_by(year) |>
+  summarize(prop_x = mean(str_detect(name, "x")))
+```
+
+## Contar y Reemplazar Coincidencias {.scrollable}
+
+- Contar coincidencias (no superpuestas)
+
+```{r}
+str_count(c("apple", "banana", "pear"), "p")
+```
+
+- Reemplazar coincidencias
+
+```{r}
+str_replace_all(c("apple", "pear"), "[aeiou]", "-")
+str_remove_all(c("apple", "pear"), "[aeiou]")
+```
+
+- Opciones de manejo de mayúsculas:
+
+```{r}
+str_count(babynames$name, "[aeiouAEIOU]")
+str_count(babynames$name, regex("[aeiou]", ignore_case = TRUE))
+str_count(str_to_lower(babynames$name), "[aeiou]")
+```
+
+## Escapar Caracteres Especiales {.scrollable}
+
+- Coincidir con . literal usando \\.
+
+```{r}
+str_view(c("a.c", "abc"), "a\\.c")
+```
+
+
+## Anclajes: {.scrollable}
+
+- ^ = inicio de cadena
+- $ = final de cadena  
+- \b = límite de palabra
+
+```{r}
+str_view(fruit, "^a")      # Empieza con 'a'
+str_view(fruit, "a$")      # Termina con 'a'
+str_view("sum(x)", "\\bsum\\b")  # Palabra exacta
+```
+
+## Accesos Directos de Clases de Caracteres {.scrollable}
+
+- Accesos directos comunes:
+- \d = dígitos, \D = no dígitos
+- \s = espacios en blanco, \S = no espacios en blanco  
+- \w = caracteres de palabra, \W = no caracteres de palabra
+
+```{r}
+x <- "abcd ABCD 12345 -!@#%."
+str_view(x, "\\d+")    # Dígitos
+str_view(x, "\\s+")    # Espacios en blanco
+str_view(x, "\\w+")    # Caracteres de palabra
+```
+
+- Rangos personalizados:
+
+```{r}
+str_view(x, "[a-z]+")  # Letras minúsculas
+```
+
+## Cuantificadores Precisos y Grupos {.scrollable}
+
+- Cuantificadores exactos con { }:
+- {n} = exactamente n veces
+- {n,} = al menos n veces
+- {n,m} = entre n y m veces
+
+*Agrupamiento con paréntesis*:
+
+```{r}
+str_view(fruit, "(..)\\1")  # Retroreferencia \1
+str_view(words, "^(..).*\\1$")  # Mismo inicio/final
+```
+
+
+- Grupos no capturadores: (?: )
+
+```{r}
+str_match(c("gray", "grey"), "gr(?:e|a)y")
+```
+
+## Banderas de Regex y Coincidencia Fija {.scrollable}
+
+- Coincidencia insensible a mayúsculas:
+str_view(c("banana", "BANANA"), 
+         regex("banana", ignore_case = TRUE))
+
+- Banderas multilínea y dotall:
+str_view("Line1\nLine2", regex("^Line", multiline = TRUE))
+
+- Coincidencia de cadena fija (sin regex):
+str_view(c("", "a", "."), fixed("."))
+
+- Comentarios para patrones complejos:
+phone <- regex(r"(\(?(\d{3})\)?[\- ]?(\d{3})[\- ]?(\d{4}))", 
+               comments = TRUE)
+
+## Dónde Usar Regex {.scrollable}
+
+**En tidyverse:**
+- `matches()` en ayudantes de selección
+- `names_pattern` en `pivot_longer()`
+- `delim` en funciones separate
+
+**En R base:**
+- `apropos("replace")` - encontrar funciones
+- `list.files(pattern = "\\.Rmd$")` - búsqueda de archivos
+
+Consejos:
+
+- Comienza simple, construye complejidad gradualmente
+- Usa múltiples enfoques cuando te atasques
+- Prueba con ejemplos positivos/negativos
+- Combina regex con otras operaciones de cadenas
+
+# FACTORES
+
+## Uso del vector cualitativo {.scrollable}
+
+Capítulo 16 del Libro R4DS
+
+## ¿Qué son los Factores? {.scrollable}
+
+- Variables categóricas con valores fijos y conocidos
+- Útiles para mostrar vectores de caracteres en orden no alfabético
+- Manejan categorías de manera consistente
+
+**Prerrequisitos:**
+```{r}
+library(tidyverse)  # Incluye el paquete forcats
+```
+
+## Problemas con Cadenas de Texto {.scrollable}
+
+```{r}
+x1 <- c("Dec", "Apr", "Jan", "Mar")
+sort(x1)  # Orden alfabético, no útil
+```
+
+
+- Solución: convertir a factor
+
+```{r}
+month_levels <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+y1 <- factor(x1, levels = month_levels)
+sort(y1)  # Orden correcto de meses
+```
+
+
+- Valores no válidos se convierten a NA
+```{r, eval=FALSE}
+x2 <- c("Dec", "Apr", "Jam", "Mar")
+y2 <- factor(x2, levels = month_levels)
+```
+
+## Alternativas Mejoradas {.scrollable}
+- forcats::fct() es más seguro
+```{r, eval=FALSE}
+y2 <- fct(x2, levels = month_levels)  # Error si hay niveles faltantes
+```
+
+
+- Sin niveles especificados:
+```{r}
+factor(x1)    # Orden alfabético
+fct(x1)       # Orden por primera aparición
+```
+
+- Acceder a niveles:
+```{r}
+levels(y1)
+```
+
+
+- Con readr:
+```{r, eval=FALSE}
+df <- read_csv(csv, col_types = cols(month = col_factor(month_levels)))
+```
+
+
+## General Social Survey {.scrollable}
+```{r}
+gss_cat
+```
+
+
+- 21,483 observaciones × 9 variables
+
+- Variables categóricas incluyen:
+ - marital (estado civil)
+ - race (raza) 
+ - rincome (ingresos)
+ - partyid (afiliación política)
+ - relig (religión)
+
+Ver distribución de categorías:
+
+```{r}
+gss_cat |> count(race)
+```
+
+## Reordenamiento para Visualización {.scrollable}
+
+```{r}
+relig_summary <- gss_cat |>
+  group_by(relig) |>
+  summarize(tvhours = mean(tvhours, na.rm = TRUE))
+```
+
+- Gráfico sin ordenar - difícil de interpretar
+```{r}
+ggplot(relig_summary, aes(x = tvhours, y = relig)) + geom_point()
+```
+
+
+- Gráfico ordenado - más claro
+```{r}
+ggplot(relig_summary, aes(x = tvhours, y = fct_reorder(relig, tvhours))) + geom_point()
+```
+
+## fct_reorder() y fct_relevel() {.scrollable}
+- fct_reorder(): ordena por variable numérica
+```{r}
+with(gss_cat, fct_reorder(relig, gss_cat$tvhours))
+```
+
+
+- fct_relevel(): mueve niveles específicos al frente
+```{r}
+with(gss_cat, fct_relevel(rincome, "Not applicable"))
+```
+
+
+- fct_reorder2(): para gráficos de líneas
+```{r}
+with(gss_cat, fct_reorder2(marital, year, age))
+```
+
+
+- fct_infreq(): ordena por frecuencia
+```{r}
+with(gss_cat, fct_infreq(marital) |> fct_rev())  # Para barras ordenadas
+```
+
+## Recodificar Niveles con fct_recode() {.scrollable}
+```{r}
+gss_cat |>
+  mutate(
+    partyid = fct_recode(partyid,
+      "Republican, strong" = "Strong republican",
+      "Republican, weak" = "Not str republican",
+      "Independent, near rep" = "Ind,near rep"
+    )
+  ) |>
+  count(partyid)
+```
+
+
+# Combinar niveles con fct_collapse() {.scrollable}
+
+```{r}
+gss_cat |>
+  mutate(
+    partyid = fct_collapse(partyid,
+      "rep" = c("Strong republican", "Not str republican"),
+      "dem" = c("Strong democrat", "Not str democrat")
+    )
+  )
+```
+
+## Agrupar Categorías Pequeñas {.scrollable}
+
+- fct_lump_lowfreq(): agrupa categorías pequeñas en "Other"
+```{r}
+gss_cat |> mutate(relig = fct_lump_lowfreq(relig)) |> count(relig)
+```
+
+
+# fct_lump_n(): mantiene exactamente n categorías {.scrollable}
+```{r}
+gss_cat |> 
+  mutate(relig = fct_lump_n(relig, n = 10)) |>
+  count(relig, sort = TRUE)
+```
+
+
+- Otras variantes:
+  - fct_lump_min(): mantiene categorías con mínimo n observaciones
+  - fct_lump_prop(): mantiene categorías con mínimo proporción
+  
+## Factores con Orden Específico {.scrollable}
+
+```{r}
+ordered(c("a", "b", "c"))  # Niveles: a < b < c
+```
+
+
+Diferencias con factores regulares:
+- ggplot2 usa escala viridis por defecto
+- Modelos lineales usan contrastes polinomiales
+
+En la práctica:
+- La mayoría de factores son regulares
+- Campos como ciencias sociales usan más factores ordenados. Ciencias biologicas usa factores ordenados tambien.
+
+## Resumen del Paquete forcats {.scrollable}
+
+**Funciones clave:**
+- fct_reorder(): ordenar por variable numérica
+- fct_recode(): cambiar etiquetas de niveles
+- fct_collapse(): combinar niveles
+- fct_lump_*(): agrupar categorías pequeñas
+
+**Mejores prácticas:**
+- Usar factores para variables categóricas
+- Especificar niveles cuando el orden importa
+- Usar forcats para manipulaciones complejas
+- Verificar distribuciones con count()
+
+**Recursos adicionales:**
+?fct_lump  # Documentación completa
+
+# PROBLEMAS DE APLICACION {.scrollable}
+
+# 🧬 Problema 1: Detección del motivo NF-κB en ADN {.scrollable}
+
+*Contexto*: NF-κB es un factor de transcripción que se une a motivos específicos en el ADN. El motivo consenso para NF-κB es 5'-GGGRNWYYCC-3', donde R es A o G, W es A o T, Y es C o T, y N es cualquier base.
+
+*Tarea*: Dada una secuencia "ACGTGGGAGATTTCCGGGAGACCCCATAGGGGATTTCC", buscar todas las ocurrencias del motivo de NF-κB.
+
+*Enfoque*: Usar una expresión regular que represente el motivo. 
+
+# SOLUCION {.scrollable}
+
+Podemos convertir el motivo 5'-GGGRNWYYCC-3' a regex: GGG[AG][AT][ACGT][CT][CT]CC. 
+
+Pero note que es de 10 bases, y a veces se permite cierta flexibilidad.
+
+Cargar librería
+
+```{r}
+library(stringr)
+dna_sequence <- "ACGTGGGAGATTTCCGGGAGACCCCATAGGGGATTTCC"
+```
+
+Motivo consenso NF-κB: 5'-GGGRNWYYCC-3'
+Regex equivalente: GGG[AG][AT][ACGT][CT][CT]CC
+
+```{r}
+motif_pattern <- "GGG[AG][AT][ACGT][CT][CT]CC"
+```
+
+Buscar todas las ocurrencias del motivo
+
+```{r}
+nfkb_matches <- str_locate_all(dna_sequence, motif_pattern)
+nfkb_matches
+```
+
+# 🧫 Problema 2: Identificación de islas CpG {.scrollable}
+
+*Contexto*: Las islas CpG son regiones del genoma con alta frecuencia de dinucleótidos CpG. Se definen como regiones de al menos 200 pares de bases con un contenido de GC superior al 50% y una proporción observada/esperada de CpG mayor a 0.6.
+
+*Tarea*: Dada una secuencia "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT", identificar si contiene islas CpG. Para simplificar, buscaremos regiones de, por ejemplo, 20 pb (en lugar de 200) que cumplan con los criterios (contenido de GC > 50% y ratio obs/exp CpG > 0.6).
+
+*Enfoque*:
+
+- Calcular el contenido de GC en una ventana deslizante.
+
+- Calcular la razón observada/esperada de CpG: (número de CpG) / (número de C * número de G / longitud de la ventana).
+
+- Usar regex para encontrar dinucleótidos CpG (CG) en la secuencia.
+
+# SOLUCION {.scrollable}
+
+Función para calcular el ratio CpG observado/esperado
+
+```{r}
+calculate_cpg_ratio <- function(sequence) {
+  sequence <- toupper(sequence)
+  n <- nchar(sequence)
+  c_count <- str_count(sequence, "C")
+  g_count <- str_count(sequence, "G")
+  cg_count <- str_count(sequence, "CG")
+  expected_cpg <- (c_count * g_count) / n
+  if (expected_cpg == 0) return(0)
+  cg_count / expected_cpg
+}
+```
+
+Función para calcular contenido GC
+
+```{r}
+calculate_gc_content <- function(sequence) {
+  sequence <- toupper(sequence)
+  gc_count <- str_count(sequence, "[GC]")
+  gc_count / nchar(sequence)
+}
+```
+
+Función principal para detectar islas CpG
+
+```{r}
+find_cpg_islands <- function(sequence, window_size = 20, gc_threshold = 0.5, cpg_ratio_threshold = 0.6) {
+  sequence <- toupper(sequence)
+  n <- nchar(sequence)
+  cpg_islands <- list()
+  
+  for (i in 1:(n - window_size + 1)) {
+    window <- str_sub(sequence, i, i + window_size - 1)
+    gc_content <- calculate_gc_content(window)
+    cpg_ratio <- calculate_cpg_ratio(window)
+    
+    if (gc_content > gc_threshold & cpg_ratio > cpg_ratio_threshold) {
+      cpg_islands <- c(cpg_islands, list(list(
+        start = i, 
+        end = i + window_size - 1, 
+        gc_content = round(gc_content, 2), 
+        cpg_ratio = round(cpg_ratio, 2)
+      )))
+    }
+  }
+  cpg_islands
+}
+```
+
+Secuencia de ejemplo
+
+```{r}
+dna_sequence <- "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
+islands <- find_cpg_islands(dna_sequence)
+islands
+```
+
+reps <- rep("cg",20)
+
+dna_sequence <- paste0(c("atcgatcgtatatatacgcg",rep("cg",20),"atatatatctata"), collapse = "")
+
+# 🧫 Problema 3: Motivos de unión en ARN {.scrollable}
+
+Contexto: En ARN, podemos buscar motivos de unión para proteínas o miRNAs. Por ejemplo, un motivo común en ARN es el sitio de unión para miR-124, que tiene el motivo "AUUAAA".
+
+Tarea: Dada una secuencia de ARN, buscar todos los sitios de unión para un miRNA específico.
+
+Enfoque: Usar regex para buscar el motivo. Podemos permitir cierta flexibilidad si el motivo no es estricto.
+
+# SOLUCION
+
+Secuencia de ARN de ejemplo
+
+```{r}
+rna_sequence <- "AUCGAUUAAAGCUGAUUAAACGAUUAAA"
+```
+
+Motivo de unión para miR-124: AUUAAA
+
+```{r}
+motif_rna <- "AUUAAA"
+```
+
+Buscar todas las ocurrencias del motivo
+
+```{r}
+rna_matches <- str_locate_all(rna_sequence, motif_rna)
+rna_matches
+```
+
+# 💊 Problema 4: Clasificación de metabolitos por InChIKey {.scrollable}
+
+Cargar librería para factores
+library(forcats)
+
+Lista de InChIKeys de ejemplo
+inchikeys <- c(
+  "RZJXGOAQTYCFIO-UHFFFAOYSA-N",
+  "RZJXGOAQTYCFIO-UHFFFAOYSA-M",
+  "BDAGIHXWWSANSR-UHFFFAOYSA-N",
+  "BDAGIHXWWSANSR-UHFFFAOYSA-M"
+)
+
+Extraer la capa principal (primeros 14 caracteres)
+main_layer <- substr(inchikeys, 1, 14)
+
+Convertir a factor
+main_layer_fct <- factor(main_layer)
+summary(main_layer_fct)
+
+Agrupar niveles poco frecuentes (mínimo 2 repeticiones)
+main_layer_grouped <- fct_lump_min(main_layer_fct, min = 2)
+summary(main_layer_grouped)
