@@ -20,3 +20,6 @@ Los videos de las sesiones realizadas hasta ahora se pueden consultar en los sig
 * [Sesión 2: transformación de datos y flujos de trabajo II](https://www.skool.com/club-power-bi-9524/classroom/ce888e21?md=91f8108354524dffbd19e2e5204a261f)
 * [Sesión 3: ordenado de datos y flujo de trabajo III](https://www.skool.com/club-power-bi-9524/classroom/ce888e21?md=009a01bf70ab43d9baa457549e06684a)
 * [Sesión 4: importación de datos y flujo de trabajo IV](https://www.skool.com/club-power-bi-9524/classroom/ce888e21?md=8fef7f8b80ca47f6b0be93db17060332)
+* [Sesión 6: comunicación y vectores lógicos]()
+* [Sesión 7: números y cadenas]()
+* [Sesión 8: expresiones regulares y factores]()
